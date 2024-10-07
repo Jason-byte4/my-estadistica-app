@@ -1,10 +1,6 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Database, BarChart2, GitBranch, PieChart, User, Table, ChevronDown } from 'lucide-react';
-import Button from "./components/ui/button";
-import Input from "./components/ui/input";
-import ScrollArea from "./components/ui/scroll-area";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./components/ui/collapsible";
 
 interface MenuItem {
   name: string;
@@ -13,9 +9,46 @@ interface MenuItem {
   subItems: string[];
 }
 
-export default function Component() {
-  const [activeSection, setActiveSection] = React.useState<string>('Archivo');
-  const [openSubMenu, setOpenSubMenu] = React.useState<string | null>(null);
+interface MenuItemProps {
+  item: MenuItem;
+  isActive: boolean;
+  onClick: (sectionName: string) => void;
+}
+
+const MenuItem: React.FC<MenuItemProps> = ({ item, isActive, onClick }) => {
+  const colorClass = isActive ? `bg-${item.color}-100 text-${item.color}-700` : 'hover:bg-gray-100';
+
+  return (
+    <div className="mb-1">
+      <button
+        className={`w-full flex items-center justify-between px-4 py-2 text-left transition-colors ${colorClass}`}
+        onClick={() => onClick(item.name)}
+      >
+        <span className="flex items-center">
+          {item.icon}
+          <span className="ml-2">{item.name}</span>
+        </span>
+        <ChevronDown className="h-4 w-4" />
+      </button>
+      {isActive && (
+        <div className="pl-8 pr-2">
+          {item.subItems.map((subItem) => (
+            <button
+              key={subItem}
+              className="w-full text-left py-1 text-sm hover:bg-gray-100"
+              onClick={() => onClick(`${item.name} - ${subItem}`)}
+            >
+              {subItem}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default function AppShell() {
+  const [activeSection, setActiveSection] = useState<string>('Archivo');
 
   const menuItems: MenuItem[] = [
     {
@@ -26,8 +59,8 @@ export default function Component() {
         'Importar conjuntos de datos',
         'Visualizar el conjunto de datos',
         'Configurar preferencias de la aplicación',
-        'Guardar archivos'
-      ]
+        'Guardar archivos',
+      ],
     },
     {
       name: 'Procesamiento de datos',
@@ -38,14 +71,14 @@ export default function Component() {
         'Agregar columnas del conjunto de datos',
         'Eliminar columnas específicas',
         'Modificar columnas',
-        'Modificar datos'
-      ]
+        'Modificar datos',
+      ],
     },
     {
       name: 'Estadística',
       icon: <BarChart2 className="h-5 w-5 text-purple-500" />,
       color: 'purple',
-      subItems: ['Media', 'Mediana', 'Moda', 'Desviación Estándar']
+      subItems: ['Media', 'Mediana', 'Moda', 'Desviación Estándar'],
     },
     {
       name: 'Cruce de variables',
@@ -55,38 +88,27 @@ export default function Component() {
         'Consulta de cruce de Variable a variable',
         'Consulta de rango de variables',
         'Consulta de un conjunto de datos a una variable',
-        'Consulta de un dato a una variable'
-      ]
+        'Consulta de un dato a una variable',
+      ],
     },
     {
       name: 'Mostrar Datos',
       icon: <Table className="h-5 w-5 text-pink-500" />,
       color: 'pink',
-      subItems: [
-        'Ver Tabla',
-        'Buscar',
-        'Paginar'
-      ]
+      subItems: ['Ver Tabla', 'Buscar', 'Paginar'],
     },
     {
       name: 'Gráficos',
       icon: <PieChart className="h-5 w-5 text-yellow-500" />,
       color: 'yellow',
-      subItems: [
-        'Generar gráficos por columna',
-        'Personalizar gráficos'
-      ]
+      subItems: ['Generar gráficos por columna', 'Personalizar gráficos'],
     },
     {
       name: 'Usuario',
       icon: <User className="h-5 w-5 text-teal-500" />,
       color: 'teal',
-      subItems: [
-        'Perfil',
-        'Configuración',
-        'Preferencias'
-      ]
-    }
+      subItems: ['Perfil', 'Configuración', 'Preferencias'],
+    },
   ];
 
   return (
@@ -98,36 +120,12 @@ export default function Component() {
         </div>
         <nav className="mt-4">
           {menuItems.map((item) => (
-            <Collapsible
+            <MenuItem
               key={item.name}
-              open={openSubMenu === item.name}
-              onOpenChange={() => setOpenSubMenu(openSubMenu === item.name ? null : item.name)}
-            >
-              <CollapsibleTrigger onClick={() => setOpenSubMenu(openSubMenu === item.name ? null : item.name)}>
-                <Button
-                  variant={activeSection === item.name ? "secondary" : "ghost"}
-                  className={`w-full justify-start gap-2 px-4 py-2 text-left ${
-                    activeSection === item.name ? `bg-${item.color}-100 text-${item.color}-700` : ''
-                  }`}
-                >
-                  {item.icon}
-                  {item.name}
-                  <ChevronDown className="ml-auto h-4 w-4" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent open={openSubMenu === item.name}>
-                {item.subItems.map((subItem) => (
-                  <Button
-                    key={subItem}
-                    variant="ghost"
-                    className="w-full justify-start py-1 text-sm"
-                    onClick={() => setActiveSection(`${item.name} - ${subItem}`)}
-                  >
-                    {subItem}
-                  </Button>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+              item={item}
+              isActive={activeSection.startsWith(item.name)}
+              onClick={setActiveSection}
+            />
           ))}
         </nav>
       </div>
@@ -138,16 +136,20 @@ export default function Component() {
         <header className="bg-white shadow-sm p-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">{activeSection}</h2>
           <div className="flex items-center gap-4">
-            <Input type="search" placeholder="Buscar..." className="w-64" />
-            <Button variant="outline" size="icon">
+            <input
+              type="search"
+              placeholder="Buscar..."
+              className="w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button className="p-2 rounded-md border border-gray-300 hover:bg-gray-100">
               <FileText className="h-5 w-5 text-blue-500" />
-            </Button>
+            </button>
           </div>
         </header>
 
         {/* Content area */}
         <main className="flex-1 overflow-auto p-6 bg-gray-50">
-          <ScrollArea className="h-full">
+          <div className="h-full overflow-auto">
             {/* Placeholder content */}
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-medium mb-4">Contenido de {activeSection}</h3>
@@ -164,10 +166,9 @@ export default function Component() {
                 </p>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </main>
       </div>
     </div>
   );
 }
-
