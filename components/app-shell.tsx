@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { FileText, Database, BarChart2, GitBranch, PieChart, User, Table, ChevronDown } from 'lucide-react'
 import { Button } from "@/components/ui/button"
@@ -9,7 +11,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 
-export default function Component() {
+export function AppShell() {
   const [activeSection, setActiveSection] = React.useState('Archivo')
   const [openSubMenu, setOpenSubMenu] = React.useState<string | null>(null)
 
