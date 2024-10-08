@@ -6,7 +6,7 @@ module.exports = {
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
-  ],,
+  ],
   // ... resto de la configuración
     plugins: [require("tailwindcss-animate")],
     theme: {
